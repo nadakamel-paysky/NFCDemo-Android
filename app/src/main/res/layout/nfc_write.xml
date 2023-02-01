@@ -14,14 +14,14 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_margin="10dp"
         android:hint="Enter data to send"
-        android:id="@+id/ed_"
+        android:id="@+id/ed_text"
         />
 
     <com.google.android.material.button.MaterialButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/ed_"
+        app:layout_constraintTop_toBottomOf="@id/ed_text"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="20dp"
         android:text="Send"
