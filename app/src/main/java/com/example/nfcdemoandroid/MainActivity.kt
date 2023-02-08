@@ -49,27 +49,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        intentFiltersArray = arrayOf(ndef)
 
-        techListsArray = arrayOf<String>(
-            NfcA::class.java.name,
-            NfcB::class.java.name,
-            NfcF::class.java.name,
-            NfcV::class.java.name,
-            Ndef::class.java.name,
-            NdefFormatable::class.java.name,
-            MifareClassic::class.java.name,
-            MifareUltralight::class.java.name,
-            IsoDep::class.java.name,
-
-
-            )
-        mPendingIntent = PendingIntent.getActivity(
-            this, 0, Intent(
-                this,
-                javaClass
-            ).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), PendingIntent.FLAG_MUTABLE
-        )
 
         val navController = findNavController(R.id.nav_host_fragment_activity_main)
         // Passing each menu ID as a set of Ids because each
@@ -90,11 +70,23 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-//        nfcAdapter?.enableForegroundDispatch(
-//            this, 0, intentFiltersArray,
-//            0
-//        )
-        enableNfcForegroundDispatch()
+        val tagDetected = IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED)
+        val ndefDetected = IntentFilter(NfcAdapter.ACTION_NDEF_DISCOVERED)
+        val techDetected = IntentFilter(NfcAdapter.ACTION_TECH_DISCOVERED)
+        val nfcIntentFilter = arrayOf(techDetected, tagDetected, ndefDetected)
+        val pendingIntent = PendingIntent.getActivity(
+            this,
+            0,
+            Intent(this, javaClass).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP),
+            PendingIntent.FLAG_MUTABLE
+        )
+        if (nfcAdapter != null) nfcAdapter?.enableForegroundDispatch(
+            this,
+            pendingIntent,
+            nfcIntentFilter,
+            null
+        )
+
         /**
          * TAG dispatch system used :
          * Action_NDEF_DISCOVERD ->> when NDEF MESSAGES are obtained and successful of
@@ -102,26 +94,19 @@ class MainActivity : AppCompatActivity() {
          * Action_TECH_DISCOVERED ->>  when NDEF MEssages fails to be mapped to Mime Type /URI
          * Action_TAG_DISCOVERD ->> when both above actions failed .
          */
-        if (NfcAdapter.ACTION_NDEF_DISCOVERED == intent.action ||
-            NfcAdapter.ACTION_TECH_DISCOVERED == intent?.action ||
-            NfcAdapter.ACTION_TAG_DISCOVERED == intent?.action
-        ) {
+//        if (NfcAdapter.ACTION_NDEF_DISCOVERED == intent.action ||
+//            NfcAdapter.ACTION_TECH_DISCOVERED == intent?.action ||
+//            NfcAdapter.ACTION_TAG_DISCOVERED == intent?.action
+//        ) {
             processIntent(intent)
-        }
+       // }
 
 
     }
 
 
     private fun enableNfcForegroundDispatch() {
-        try {
-            val intent = Intent(this, javaClass).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
-            val nfcPendingIntent =
-                PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
-            getNFCAdapter()?.enableForegroundDispatch(this, nfcPendingIntent, null, null)
-        } catch (ex: IllegalStateException) {
-            Log.e("error", "Error enabling NFC foreground dispatch", ex)
-        }
+
     }
 
     private fun processIntent(intent: Intent) {
@@ -144,6 +129,8 @@ class MainActivity : AppCompatActivity() {
 
         val tag: Tag? = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG)
         Log.e("tag intent", tag?.id.toString())
+        Toast.makeText(this, "this is the tag ${tag?.id}", Toast.LENGTH_LONG).show()
+
 
     }
 
@@ -158,9 +145,6 @@ class MainActivity : AppCompatActivity() {
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
 
-        var tags = intent?.getParcelableArrayExtra(NfcAdapter.EXTRA_TAG)
-        Log.d(TAG, "onNewIntent: " + intent!!.action)
-
         if (tag != null) {
             val ndef = Ndef.get(tag)
             Toast.makeText(
@@ -174,7 +158,7 @@ class MainActivity : AppCompatActivity() {
                 Toast.LENGTH_SHORT
             ).show()
         }
-        //setIntent(intent)
+        setIntent(intent)
     }
 
     fun getNFCtag() = tag
