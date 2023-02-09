@@ -47,21 +47,13 @@ class HomeFragment : Fragment() {
         homeViewModel.text.observe(viewLifecycleOwner) {
             textView.text = it
         }
-      //  readTag((requireActivity() as MainActivity).getNFCtag())
 
 
 
         return root
     }
 
-    fun readTag(tag: Tag?): String? {
-        return MifareUltralight.get(tag)?.use { mifare ->
-            mifare.connect()
-            val payload = mifare.readPages(4)
-            Log.e("nfc home fragment", "Im read moode")
-            String(payload, Charset.forName("US-ASCII"))
-        }
-    }
+
 
 
     override fun onDestroyView() {

@@ -17,7 +17,6 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.nfcdemoandroid.databinding.ActivityMainBinding
-import com.example.nfcdemoandroid.ui.NFCRead.TAG
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import java.io.IOException
 
@@ -94,12 +93,12 @@ class MainActivity : AppCompatActivity() {
          * Action_TECH_DISCOVERED ->>  when NDEF MEssages fails to be mapped to Mime Type /URI
          * Action_TAG_DISCOVERD ->> when both above actions failed .
          */
-//        if (NfcAdapter.ACTION_NDEF_DISCOVERED == intent.action ||
-//            NfcAdapter.ACTION_TECH_DISCOVERED == intent?.action ||
-//            NfcAdapter.ACTION_TAG_DISCOVERED == intent?.action
-//        ) {
+        if (NfcAdapter.ACTION_NDEF_DISCOVERED == intent.action ||
+            NfcAdapter.ACTION_TECH_DISCOVERED == intent?.action ||
+            NfcAdapter.ACTION_TAG_DISCOVERED == intent?.action
+        ) {
             processIntent(intent)
-       // }
+        }
 
 
     }
@@ -122,14 +121,17 @@ class MainActivity : AppCompatActivity() {
                 msgs.add(rawmsgs[index] as NdefMessage)
                 msgs[0].records[0].payload
             }
-        }
-        Log.e("NDEF Messages intent", msgs.toString())
-        Toast.makeText(this, msgs.toString(), Toast.LENGTH_LONG).show()
+            Log.e("NDEF Messages intent", msgs.toString())
+            val inMsg: String = String(msgs[0].records[0].payload)
+
+            Toast.makeText(this, inMsg.toString(), Toast.LENGTH_LONG).show()
 //        _binding?.textHome?.text = msgs.toString()
 
-        val tag: Tag? = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG)
-        Log.e("tag intent", tag?.id.toString())
-        Toast.makeText(this, "this is the tag ${tag?.id}", Toast.LENGTH_LONG).show()
+            val tag: Tag? = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG)
+            Log.e("tag intent", tag?.id.toString())
+        }
+
+       // Toast.makeText(this, "this is the tag ${tag?.id}", Toast.LENGTH_LONG).show()
 
 
     }

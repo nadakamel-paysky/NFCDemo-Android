@@ -22,6 +22,8 @@
                 <action android:name="android.nfc.action.TAG_DISCOVERED" />
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+                <data android:mimeType="text/plain" />
+
             </intent-filter>
 
 
@@ -34,6 +36,7 @@
                 <action android:name="android.nfc.action.TECH_DISCOVERED" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
+                <data android:mimeType="text/plain" />
 
             </intent-filter>
             <meta-data
@@ -41,6 +44,8 @@
                 android:resource="@xml/nfc_tech_list" />
             <intent-filter>
                 <action android:name="android.nfc.action.TAG_DISCOVERED" />
+                <data android:mimeType="text/plain" />
+
             </intent-filter>
 
         </activity>
