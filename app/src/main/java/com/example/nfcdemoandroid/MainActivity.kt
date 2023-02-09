@@ -3,11 +3,11 @@ package com.example.nfcdemoandroid
 import android.app.PendingIntent
 import android.content.Intent
 import android.content.IntentFilter
-import android.nfc.FormatException
 import android.nfc.NdefMessage
 import android.nfc.NfcAdapter
 import android.nfc.Tag
-import android.nfc.tech.*
+import android.nfc.tech.IsoDep
+import android.nfc.tech.NfcA
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -20,7 +20,7 @@ import androidx.navigation.ui.setupWithNavController
 import com.example.nfcdemoandroid.databinding.ActivityMainBinding
 import com.example.nfcdemoandroid.ui.home.HomeViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import java.io.IOException
+import java.nio.charset.Charset
 
 
 class MainActivity : AppCompatActivity() {
@@ -40,6 +40,7 @@ class MainActivity : AppCompatActivity() {
          homeViewModel = ViewModelProvider(this).get(HomeViewModel::class.java)
         homeViewModel?.init()
 
+        nfcAdapter?.setNdefPushMessage(null, this, this);
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -147,9 +148,62 @@ class MainActivity : AppCompatActivity() {
 
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
+        val tagFromIntent: Tag? = intent?.getParcelableExtra(NfcAdapter.EXTRA_TAG)
+        Toast.makeText(this,tagFromIntent?.id.toString(),Toast.LENGTH_SHORT).show()
+        Log.e("tags id",tagFromIntent?.id.toString())
+        Log.e("tags list",tagFromIntent?.techList.toString())
+        readTag(tagFromIntent)
         setIntent(intent)
     }
 
+
+    fun writeTag(tag: Tag, tagText: String) {
+        NfcA.get(tag)?.use { nfc ->
+            nfc.connect()
+            Charset.forName("US-ASCII").also { usAscii ->
+//                iso.writePage(4, "abcd".toByteArray(usAscii))
+//                ultralight.writePage(5, "efgh".toByteArray(usAscii))
+//                ultralight.writePage(6, "ijkl".toByteArray(usAscii))
+//                ultralight.writePage(7, "mnop".toByteArray(usAscii))
+            }
+        }
+    }
+
+    private fun readTag(tagFromIntent: Tag?) {
+        val SELECT = byteArrayOf(
+            0x00.toByte(), 0xA4.toByte(), 0x04.toByte(), 0x00.toByte(), 0x0A.toByte(),  // Length
+            0x63, 0x64, 0x63, 0x00, 0x00, 0x00, 0x00, 0x32, 0x32, 0x31 // AID
+        )
+        tag
+         IsoDep.get(tagFromIntent)?.use { iso ->
+             iso.connect()
+             if (iso.isConnected) {
+                 Log.e("result", iso.tag.techList.toString())
+                 //  mifare.tag.techList.toString()
+//            val payload = mifare.readPages(4)
+//            String(payload, Charset.forName("US-ASCII"))
+                 val result: ByteArray = (iso).transceive(SELECT)
+                 //  if (!(result[0] == 0x90.toByte() && result[1] == 0x00.toByte())) throw IOException("could not select applet")
+                 val str: String = bytesToHex(result)
+                 Log.e("result",  str.toString())
+                 iso.close()
+
+             }
+
+
+         }
+    }
+
+    protected val hexArray = "0123456789ABCDEF".toCharArray()
+    fun bytesToHex(bytes: ByteArray): String {
+        val hexChars = CharArray(bytes.size * 2)
+        for (j in bytes.indices) {
+            val v = bytes[j].toInt() and 0xFF
+            hexChars[j * 2] = hexArray[v ushr 4]
+            hexChars[j * 2 + 1] = hexArray[v and 0x0F]
+        }
+        return String(hexChars)
+    }
     fun getNFCtag() = tag
 
 }
