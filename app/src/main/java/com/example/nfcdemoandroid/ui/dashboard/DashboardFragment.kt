@@ -39,12 +39,12 @@ class DashboardFragment : Fragment() {
             textView.text = it
         }
         _binding?.btnSend?.setOnClickListener {
-            val text = _binding?.textDashboard?.text
+            val text = _binding?.ed?.text
 
             /**
              * simple text/plain NDEF Message
              */
-            (requireActivity() as MainActivity).getNFCAdapter()?.setNdefPushMessage(createTextRecord(text.toString()), requireActivity())
+            (requireActivity() as MainActivity).getNFCAdapter()?.setNdefPushMessage(createNdefBeamMessage(text), requireActivity())
             /**
              * simple beam NDEF Message
              * - need to add same mimeType in Manifest as well
@@ -53,6 +53,12 @@ class DashboardFragment : Fragment() {
 
         }
         return root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        (activity as MainActivity).getNFCAdapter()?.disableReaderMode(requireActivity())
+
     }
 
     override fun onDestroyView() {
@@ -86,12 +92,11 @@ class DashboardFragment : Fragment() {
         )
     }
 
-    fun createNdefBeamMessage(): NdefMessage {
-        val text = "Beam me up, Android!\n\n" +
-                "Beam Time: " + System.currentTimeMillis()
+    fun createNdefBeamMessage(text: CharSequence?): NdefMessage {
+        val textneded = "${text}"
         return NdefMessage(
             arrayOf(
-                createMime("application/vnd.com.example.android.beam", text.toByteArray())
+                createMime("text/plain", textneded.toByteArray())
             )
         )
     }

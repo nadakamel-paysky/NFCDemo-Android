@@ -12,11 +12,13 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.nfcdemoandroid.databinding.ActivityMainBinding
+import com.example.nfcdemoandroid.ui.home.HomeViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import java.io.IOException
 
@@ -30,9 +32,14 @@ class MainActivity : AppCompatActivity() {
 
     var intentFiltersArray = arrayOf<IntentFilter>()
     var techListsArray = arrayOf<String>()
+    var homeViewModel: HomeViewModel? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+         homeViewModel = ViewModelProvider(this).get(HomeViewModel::class.java)
+        homeViewModel?.init()
+
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -104,9 +111,6 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    private fun enableNfcForegroundDispatch() {
-
-    }
 
     private fun processIntent(intent: Intent) {
         /**
@@ -123,16 +127,13 @@ class MainActivity : AppCompatActivity() {
             }
             Log.e("NDEF Messages intent", msgs.toString())
             val inMsg: String = String(msgs[0].records[0].payload)
-
-            Toast.makeText(this, inMsg.toString(), Toast.LENGTH_LONG).show()
-//        _binding?.textHome?.text = msgs.toString()
+            homeViewModel?.sendData(inMsg)
 
             val tag: Tag? = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG)
             Log.e("tag intent", tag?.id.toString())
         }
 
-       // Toast.makeText(this, "this is the tag ${tag?.id}", Toast.LENGTH_LONG).show()
-
+        nfcAdapter?.disableReaderMode(this)
 
     }
 
@@ -146,45 +147,9 @@ class MainActivity : AppCompatActivity() {
 
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
-
-        if (tag != null) {
-            val ndef = Ndef.get(tag)
-            Toast.makeText(
-                applicationContext, "${ndef.tag}",
-                Toast.LENGTH_SHORT
-            ).show()
-            readFromNFC(ndef)
-        } else {
-            Toast.makeText(
-                applicationContext, "Problem reading NFC tag!\nPlease try again.",
-                Toast.LENGTH_SHORT
-            ).show()
-        }
         setIntent(intent)
     }
 
     fun getNFCtag() = tag
 
-    private fun readFromNFC(ndef: Ndef) {
-        try {
-            ndef.connect()
-            val ndefMessage = ndef.ndefMessage
-            if (ndefMessage != null) {
-                val records = ndefMessage.records
-
-                //records will produce an array of strings stored on the tag
-                //iterate through them as handle as required.
-                Toast.makeText(
-                    applicationContext, "Record $records",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-
-            ndef.close()
-        } catch (e: IOException) {
-            e.printStackTrace()
-        } catch (e: FormatException) {
-            e.printStackTrace()
-        }
-    }
 }
