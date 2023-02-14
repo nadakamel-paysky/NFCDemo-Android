@@ -2,6 +2,7 @@ package com.example.nfcdemoandroid.utils
 
 import android.nfc.cardemulation.HostApduService
 import android.os.Bundle
+import android.util.Log
 
 class HostCardEmulatorService: HostApduService() {
     companion object {
@@ -16,8 +17,7 @@ class HostCardEmulatorService: HostApduService() {
         val MIN_APDU_LENGTH = 12
     }
     override fun onDeactivated(reason: Int) {
-        TODO("not implemented") //To change body of created
-        // functions use File | Settings | File Templates.
+        Log.d(TAG, "Deactivated: " + reason)
     }
 
     override fun processCommandApdu(commandApdu: ByteArray?,
