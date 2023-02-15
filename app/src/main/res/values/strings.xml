@@ -3,4 +3,8 @@
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
+    <string name="read_mode">Read Mode</string>
+    <string name="act_as_reading_nfc">Act As Reading NFC</string>
+    <string name="servicedesc">Description</string>
+    <string name="aiddescription">Description</string>
 </resources>
